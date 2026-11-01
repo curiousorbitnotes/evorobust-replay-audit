@@ -1,0 +1,64 @@
+{
+ "n_items": 2560,
+ "n_failed_requests": 0,
+ "fatal_rows": 0,
+ "failure_examples": [],
+ "n_over_server_context_(chat-template tokens + 4 > 4096)": 0,
+ "n_invalid_parse": 0,
+ "n_valid_within_context": 2560,
+ "max_input_tokens": 2381,
+ "agreement_same_sample": 0.99765625,
+ "agreement_shift1": 0.84765625,
+ "agreement_other_prompt": 0.68515625,
+ "improvement_same_minus_shift1": {
+  "diff": 0.15,
+  "ci95": [
+   0.127734375,
+   0.173828125
+  ]
+ },
+ "improvement_same_minus_other_prompt": {
+  "diff": 0.3125,
+  "ci95": [
+   0.2765625,
+   0.35
+  ]
+ },
+ "by_run_source": {
+  "base_qwen7b_code__code|humaneval": {
+   "n": 640,
+   "same": 0.996875,
+   "shift1": 0.8921875,
+   "other_prompt": 0.7984375
+  },
+  "base_qwen7b_code__code|mbpp": {
+   "n": 640,
+   "same": 0.996875,
+   "shift1": 0.8875,
+   "other_prompt": 0.7234375
+  },
+  "base_llama8b__code|humaneval": {
+   "n": 640,
+   "same": 0.996875,
+   "shift1": 0.7640625,
+   "other_prompt": 0.596875
+  },
+  "base_llama8b__code|mbpp": {
+   "n": 640,
+   "same": 1.0,
+   "shift1": 0.846875,
+   "other_prompt": 0.621875
+  }
+ },
+ "cached_zero_where_new_one_(n)": 2,
+ "cached_one_where_new_zero_(n)": 4,
+ "over_context_items_cached_verdict_counts": {
+  "cached0": 0,
+  "cached1": 0
+ },
+ "template_sha256": "5329b0bff2c398c5e435de9fcbdd53d164159db0edc1e7d0b165ecf32f1962c1",
+ "model": "Qwen/Qwen2.5-72B-Instruct",
+ "seed": 7,
+ "design": "80 prompts per source x 8 random samples, per run",
+ "note": "Cannot prove identity with the original cache-time messages; evidence of consistency only."
+}

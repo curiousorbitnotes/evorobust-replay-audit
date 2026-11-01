@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+# inputs you supply locally; not part of this release
+/data/samples/
+/data/archive_k32/
+/data/hardened_scores/
+/data/per_prompt_scores/
+/data/corrdose/
+/data/wljdam/

@@ -1,0 +1,754 @@
+{
+ "note": "judge verdict j is assumed to belong to sample j; exec_study = the study's cached scorer (ce_FINAL arrays); exec_hardened = strict_ok from canon4.py / canon5.py",
+ "pass_at_k_with_prompt_bootstrap": {
+  "base": {
+   "k=1": {
+    "judge": {
+     "mean": 0.8411520190023754,
+     "ci95": [
+      0.8135020783847982,
+      0.8686720605700713
+     ]
+    },
+    "judge+gate": {
+     "mean": 0.8392406472684085,
+     "ci95": [
+      0.8097535629453682,
+      0.8661854216152018
+     ]
+    },
+    "exec_study": {
+     "mean": 0.31782586104513066,
+     "ci95": [
+      0.2780767517814727,
+      0.36143482779097386
+     ]
+    },
+    "exec_hardened": {
+     "mean": 0.33742206057007124,
+     "ci95": [
+      0.2937017517814727,
+      0.37976915083135393
+     ]
+    },
+    "judge_minus_exec_hardened": {
+     "mean": 0.5037299584323041,
+     "ci95": [
+      0.4605292458432304,
+      0.5482853325415677
+     ]
+    },
+    "judge_minus_exec_study": {
+     "mean": 0.5233261579572447,
+     "ci95": [
+      0.4807563836104513,
+      0.5660815023752969
+     ]
+    }
+   },
+   "k=32": {
+    "judge": {
+     "mean": 0.9609839452743816,
+     "ci95": [
+      0.9426736375153998,
+      0.9771410387420341
+     ]
+    },
+    "judge+gate": {
+     "mean": 0.9605177449028577,
+     "ci95": [
+      0.9424857873557007,
+      0.9769903465801465
+     ]
+    },
+    "exec_study": {
+     "mean": 0.4049026065155222,
+     "ci95": [
+      0.35816991158583333,
+      0.45126608416343594
+     ]
+    },
+    "exec_hardened": {
+     "mean": 0.42884236717601504,
+     "ci95": [
+      0.38039453051716243,
+      0.4753104603582875
+     ]
+    },
+    "judge_minus_exec_hardened": {
+     "mean": 0.5321415780983665,
+     "ci95": [
+      0.48430585535873905,
+      0.5794465354055205
+     ]
+    },
+    "judge_minus_exec_study": {
+     "mean": 0.5560813387588593,
+     "ci95": [
+      0.5082311517281071,
+      0.6038268146411686
+     ]
+    }
+   },
+   "k=128": {
+    "judge": {
+     "mean": 0.9714964370546318,
+     "ci95": [
+      0.9548693586698337,
+      0.9857482185273159
+     ]
+    },
+    "judge+gate": {
+     "mean": 0.9714964370546318,
+     "ci95": [
+      0.9548693586698337,
+      0.9857482185273159
+     ]
+    },
+    "exec_study": {
+     "mean": 0.4156769596199525,
+     "ci95": [
+      0.37054631828978624,
+      0.46318289786223277
+     ]
+    },
+    "exec_hardened": {
+     "mean": 0.4418052256532066,
+     "ci95": [
+      0.39429928741092635,
+      0.48931116389548696
+     ]
+    },
+    "judge_minus_exec_hardened": {
+     "mean": 0.5296912114014252,
+     "ci95": [
+      0.47980997624703087,
+      0.5795724465558195
+     ]
+    },
+    "judge_minus_exec_study": {
+     "mean": 0.5558194774346793,
+     "ci95": [
+      0.505938242280285,
+      0.6057007125890737
+     ]
+    }
+   }
+  },
+  "CE-trained": {
+   "k=1": {
+    "judge": {
+     "mean": 0.6744729809976246,
+     "ci95": [
+      0.6392332244655582,
+      0.7088405581947743
+     ]
+    },
+    "judge+gate": {
+     "mean": 0.3005121733966746,
+     "ci95": [
+      0.2650311757719715,
+      0.3365498812351544
+     ]
+    },
+    "exec_study": {
+     "mean": 0.11707615795724466,
+     "ci95": [
+      0.09165305819477435,
+      0.1438353622327791
+     ]
+    },
+    "exec_hardened": {
+     "mean": 0.12394225059382423,
+     "ci95": [
+      0.09814801068883611,
+      0.1500519596199525
+     ]
+    },
+    "judge_minus_exec_hardened": {
+     "mean": 0.5505307304038005,
+     "ci95": [
+      0.5139363123515439,
+      0.588479809976247
+     ]
+    },
+    "judge_minus_exec_study": {
+     "mean": 0.5573968230403801,
+     "ci95": [
+      0.5203384798099763,
+      0.5941582541567696
+     ]
+    }
+   },
+   "k=32": {
+    "judge": {
+     "mean": 0.9269567693533043,
+     "ci95": [
+      0.9029989669884789,
+      0.9489677284104668
+     ]
+    },
+    "judge+gate": {
+     "mean": 0.5922794157487966,
+     "ci95": [
+      0.5496386942117658,
+      0.6368753338301785
+     ]
+    },
+    "exec_study": {
+     "mean": 0.2499159361458518,
+     "ci95": [
+      0.21148661328982427,
+      0.28931248535541026
+     ]
+    },
+    "exec_hardened": {
+     "mean": 0.2631702010843998,
+     "ci95": [
+      0.22290558746225234,
+      0.30390669544365084
+     ]
+    },
+    "judge_minus_exec_hardened": {
+     "mean": 0.6637865682689045,
+     "ci95": [
+      0.6206152708911228,
+      0.7071182782136876
+     ]
+    },
+    "judge_minus_exec_study": {
+     "mean": 0.6770408332074525,
+     "ci95": [
+      0.6334693460731746,
+      0.7177720492308426
+     ]
+    }
+   },
+   "k=128": {
+    "judge": {
+     "mean": 0.9524940617577197,
+     "ci95": [
+      0.9311163895486936,
+      0.9714964370546318
+     ]
+    },
+    "judge+gate": {
+     "mean": 0.66270783847981,
+     "ci95": [
+      0.6152019002375297,
+      0.7078384798099763
+     ]
+    },
+    "exec_study": {
+     "mean": 0.28741092636579574,
+     "ci95": [
+      0.24465558194774348,
+      0.33016627078384797
+     ]
+    },
+    "exec_hardened": {
+     "mean": 0.3016627078384798,
+     "ci95": [
+      0.2589073634204275,
+      0.34441805225653205
+     ]
+    },
+    "judge_minus_exec_hardened": {
+     "mean": 0.6508313539192399,
+     "ci95": [
+      0.6057007125890737,
+      0.6959619952494062
+     ]
+    },
+    "judge_minus_exec_study": {
+     "mean": 0.665083135391924,
+     "ci95": [
+      0.6199524940617577,
+      0.7078384798099763
+     ]
+    }
+   }
+  },
+  "SLJ-trained": {
+   "k=1": {
+    "judge": {
+     "mean": 0.6810050475059383,
+     "ci95": [
+      0.6472684085510689,
+      0.7150200415676959
+     ]
+    },
+    "judge+gate": {
+     "mean": 0.27588702494061756,
+     "ci95": [
+      0.24120397862232779,
+      0.3099948040380047
+     ]
+    },
+    "exec_study": {
+     "mean": 0.10828013657957244,
+     "ci95": [
+      0.08447149643705464,
+      0.13377746437054633
+     ]
+    },
+    "exec_hardened": {
+     "mean": 0.11421837885985749,
+     "ci95": [
+      0.08955611638954869,
+      0.13925178147268408
+     ]
+    },
+    "judge_minus_exec_hardened": {
+     "mean": 0.5667866686460807,
+     "ci95": [
+      0.5297097684085511,
+      0.60291716152019
+     ]
+    },
+    "judge_minus_exec_study": {
+     "mean": 0.5727249109263658,
+     "ci95": [
+      0.5362603919239906,
+      0.6091894299287411
+     ]
+    }
+   },
+   "k=32": {
+    "judge": {
+     "mean": 0.9394947009117987,
+     "ci95": [
+      0.918503540470377,
+      0.9593204650009152
+     ]
+    },
+    "judge+gate": {
+     "mean": 0.58738566939142,
+     "ci95": [
+      0.5436463396294586,
+      0.6308907829106969
+     ]
+    },
+    "exec_study": {
+     "mean": 0.23428863479581172,
+     "ci95": [
+      0.195207210223056,
+      0.27534510355138647
+     ]
+    },
+    "exec_hardened": {
+     "mean": 0.24734832005684643,
+     "ci95": [
+      0.2090606802296416,
+      0.28673923764549575
+     ]
+    },
+    "judge_minus_exec_hardened": {
+     "mean": 0.6921463808549522,
+     "ci95": [
+      0.6484245085369861,
+      0.7362102791985407
+     ]
+    },
+    "judge_minus_exec_study": {
+     "mean": 0.705206066115987,
+     "ci95": [
+      0.6616865528770713,
+      0.7470731224980983
+     ]
+    }
+   },
+   "k=128": {
+    "judge": {
+     "mean": 0.9643705463182898,
+     "ci95": [
+      0.9453681710213777,
+      0.9809976247030879
+     ]
+    },
+    "judge+gate": {
+     "mean": 0.665083135391924,
+     "ci95": [
+      0.6199524940617577,
+      0.7102137767220903
+     ]
+    },
+    "exec_study": {
+     "mean": 0.2660332541567696,
+     "ci95": [
+      0.22565320665083136,
+      0.3087885985748218
+     ]
+    },
+    "exec_hardened": {
+     "mean": 0.2826603325415677,
+     "ci95": [
+      0.23990498812351543,
+      0.3254156769596199
+     ]
+    },
+    "judge_minus_exec_hardened": {
+     "mean": 0.6817102137767221,
+     "ci95": [
+      0.6365795724465558,
+      0.7268408551068883
+     ]
+    },
+    "judge_minus_exec_study": {
+     "mean": 0.6983372921615202,
+     "ci95": [
+      0.6532066508313539,
+      0.7410926365795725
+     ]
+    }
+   }
+  }
+ },
+ "base_minus_damaged_separation_paired": {
+  "CE-trained": {
+   "k=1": {
+    "judge": {
+     "base_minus_damaged": 0.1666790380047506,
+     "ci95_paired_prompts": [
+      0.1382311460807601,
+      0.1967042755344418
+     ]
+    },
+    "judge+gate": {
+     "base_minus_damaged": 0.538728473871734,
+     "ci95_paired_prompts": [
+      0.49968453087885983,
+      0.5770486935866983
+     ]
+    },
+    "exec_study": {
+     "base_minus_damaged": 0.20074970308788598,
+     "ci95_paired_prompts": [
+      0.1664563539192399,
+      0.23955240498812352
+     ]
+    },
+    "exec_hardened": {
+     "base_minus_damaged": 0.21347980997624702,
+     "ci95_paired_prompts": [
+      0.1768297209026128,
+      0.2512062054631829
+     ]
+    }
+   },
+   "k=32": {
+    "judge": {
+     "base_minus_damaged": 0.034027175921077214,
+     "ci95_paired_prompts": [
+      0.013837101841358553,
+      0.053795733422833884
+     ]
+    },
+    "judge+gate": {
+     "base_minus_damaged": 0.3682383291540613,
+     "ci95_paired_prompts": [
+      0.32482932516517593,
+      0.41261872064982563
+     ]
+    },
+    "exec_study": {
+     "base_minus_damaged": 0.15498667036967037,
+     "ci95_paired_prompts": [
+      0.11922302792146366,
+      0.19133004472490367
+     ]
+    },
+    "exec_hardened": {
+     "base_minus_damaged": 0.16567216609161523,
+     "ci95_paired_prompts": [
+      0.12993639119141784,
+      0.2032313103073866
+     ]
+    }
+   },
+   "k=128": {
+    "judge": {
+     "base_minus_damaged": 0.019002375296912115,
+     "ci95_paired_prompts": [
+      0.0,
+      0.040380047505938245
+     ]
+    },
+    "judge+gate": {
+     "base_minus_damaged": 0.3087885985748218,
+     "ci95_paired_prompts": [
+      0.26128266033254155,
+      0.35629453681710216
+     ]
+    },
+    "exec_study": {
+     "base_minus_damaged": 0.12826603325415678,
+     "ci95_paired_prompts": [
+      0.09263657957244656,
+      0.166270783847981
+     ]
+    },
+    "exec_hardened": {
+     "base_minus_damaged": 0.14014251781472684,
+     "ci95_paired_prompts": [
+      0.1021377672209026,
+      0.17814726840855108
+     ]
+    }
+   }
+  },
+  "SLJ-trained": {
+   "k=1": {
+    "judge": {
+     "base_minus_damaged": 0.16014697149643706,
+     "ci95_paired_prompts": [
+      0.1309567992874109,
+      0.18928147268408552
+     ]
+    },
+    "judge+gate": {
+     "base_minus_damaged": 0.563353622327791,
+     "ci95_paired_prompts": [
+      0.5263509501187649,
+      0.5989830760095012
+     ]
+    },
+    "exec_study": {
+     "base_minus_damaged": 0.2095457244655582,
+     "ci95_paired_prompts": [
+      0.17445442399049882,
+      0.24565766033254158
+     ]
+    },
+    "exec_hardened": {
+     "base_minus_damaged": 0.22320368171021376,
+     "ci95_paired_prompts": [
+      0.1877041270783848,
+      0.26068883610451304
+     ]
+    }
+   },
+   "k=32": {
+    "judge": {
+     "base_minus_damaged": 0.021489244362582868,
+     "ci95_paired_prompts": [
+      0.002102177565494961,
+      0.04249307518885408
+     ]
+    },
+    "judge+gate": {
+     "base_minus_damaged": 0.3731320755114379,
+     "ci95_paired_prompts": [
+      0.32967464144978453,
+      0.41758034265056443
+     ]
+    },
+    "exec_study": {
+     "base_minus_damaged": 0.17061397171971046,
+     "ci95_paired_prompts": [
+      0.13488342039779125,
+      0.2075361076757468
+     ]
+    },
+    "exec_hardened": {
+     "base_minus_damaged": 0.1814940471191686,
+     "ci95_paired_prompts": [
+      0.14567369734384736,
+      0.21926384281016006
+     ]
+    }
+   },
+   "k=128": {
+    "judge": {
+     "base_minus_damaged": 0.007125890736342043,
+     "ci95_paired_prompts": [
+      -0.011876484560570071,
+      0.026128266033254157
+     ]
+    },
+    "judge+gate": {
+     "base_minus_damaged": 0.30641330166270786,
+     "ci95_paired_prompts": [
+      0.2589073634204275,
+      0.3515439429928741
+     ]
+    },
+    "exec_study": {
+     "base_minus_damaged": 0.1496437054631829,
+     "ci95_paired_prompts": [
+      0.11163895486935867,
+      0.1876484560570071
+     ]
+    },
+    "exec_hardened": {
+     "base_minus_damaged": 0.15914489311163896,
+     "ci95_paired_prompts": [
+      0.12114014251781473,
+      0.1995249406175772
+     ]
+    }
+   }
+  }
+ },
+ "simple_signals_vs_parse_gate": {
+  "CE-trained": {
+   "parse_fail_flag": {
+    "auc_damaged_vs_base": 0.8117,
+    "also_reversed_for_length": null,
+    "mean_base": 0.004008313539192399,
+    "mean_damaged": 0.6304186460807601
+   },
+   "output_length_chars": {
+    "auc_damaged_vs_base": 0.63097084375,
+    "also_reversed_for_length": 0.36902915625,
+    "mean_base": 204.74142666270785,
+    "mean_damaged": 276.4358113123515
+   },
+   "low_code_share": {
+    "auc_damaged_vs_base": 0.37111334875,
+    "also_reversed_for_length": null,
+    "mean_base": 0.10557295374562195,
+    "mean_damaged": 0.08108037238087931
+   },
+   "within_run_length_auc_nonparsing_vs_parsing": 0.665287176139787
+  },
+  "SLJ-trained": {
+   "parse_fail_flag": {
+    "auc_damaged_vs_base": 0.83045,
+    "also_reversed_for_length": null,
+    "mean_base": 0.004008313539192399,
+    "mean_damaged": 0.6689986638954869
+   },
+   "output_length_chars": {
+    "auc_damaged_vs_base": 0.67466018,
+    "also_reversed_for_length": 0.32533981999999995,
+    "mean_base": 204.74142666270785,
+    "mean_damaged": 306.82014548693587
+   },
+   "low_code_share": {
+    "auc_damaged_vs_base": 0.32833487875,
+    "also_reversed_for_length": null,
+    "mean_base": 0.10557295374562195,
+    "mean_damaged": 0.07388906151650733
+   },
+   "within_run_length_auc_nonparsing_vs_parsing": 0.6695407215338902
+  }
+ },
+ "prose_definition": "more than 40 characters outside all fenced code blocks",
+ "prose_vs_judge_acceptance": {
+  "base": {
+   "no_prose|parses": {
+    "n": 53629,
+    "n_prompts_contributing": 421,
+    "judge_accept_rate": 0.8431632139327603,
+    "ci95_prompt_cluster_conditional_on_contributing_prompts": [
+     0.8151572198095096,
+     0.8708379888268156
+    ]
+   },
+   "no_prose|non_parsing": {
+    "n": 208,
+    "n_prompts_contributing": 58,
+    "judge_accept_rate": 0.4951923076923077,
+    "ci95_prompt_cluster_conditional_on_contributing_prompts": [
+     0.365,
+     0.6255707762557078
+    ]
+   },
+   "prose|parses": {
+    "n": 43,
+    "n_prompts_contributing": 13,
+    "judge_accept_rate": 0.16279069767441862,
+    "ci95_prompt_cluster_conditional_on_contributing_prompts": [
+     0.0,
+     0.48148148148148145
+    ]
+   },
+   "prose|non_parsing": {
+    "n": 8,
+    "n_prompts_contributing": 6,
+    "judge_accept_rate": 0.0,
+    "ci95_prompt_cluster_conditional_on_contributing_prompts": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "CE-trained": {
+   "no_prose|parses": {
+    "n": 19907,
+    "n_prompts_contributing": 324,
+    "judge_accept_rate": 0.8134324609433867,
+    "ci95_prompt_cluster_conditional_on_contributing_prompts": [
+     0.768796713359402,
+     0.8548497088600955
+    ]
+   },
+   "no_prose|non_parsing": {
+    "n": 33835,
+    "n_prompts_contributing": 379,
+    "judge_accept_rate": 0.5941776267178956,
+    "ci95_prompt_cluster_conditional_on_contributing_prompts": [
+     0.5536213583476143,
+     0.6344717835720406
+    ]
+   },
+   "prose|parses": {
+    "n": 9,
+    "n_prompts_contributing": 4,
+    "judge_accept_rate": 0.1111111111111111,
+    "ci95_prompt_cluster_conditional_on_contributing_prompts": [
+     0.0,
+     0.6
+    ]
+   },
+   "prose|non_parsing": {
+    "n": 137,
+    "n_prompts_contributing": 58,
+    "judge_accept_rate": 0.35036496350364965,
+    "ci95_prompt_cluster_conditional_on_contributing_prompts": [
+     0.19811320754716982,
+     0.478494623655914
+    ]
+   }
+  },
+  "SLJ-trained": {
+   "no_prose|parses": {
+    "n": 17831,
+    "n_prompts_contributing": 316,
+    "judge_accept_rate": 0.8337165610453704,
+    "ci95_prompt_cluster_conditional_on_contributing_prompts": [
+     0.7879571703561117,
+     0.874096768599341
+    ]
+   },
+   "no_prose|non_parsing": {
+    "n": 35835,
+    "n_prompts_contributing": 391,
+    "judge_accept_rate": 0.6073391935258825,
+    "ci95_prompt_cluster_conditional_on_contributing_prompts": [
+     0.5680921966120522,
+     0.646895195279573
+    ]
+   },
+   "prose|parses": {
+    "n": 6,
+    "n_prompts_contributing": 5,
+    "judge_accept_rate": 0.16666666666666666,
+    "ci95_prompt_cluster_conditional_on_contributing_prompts": [
+     0.0,
+     0.6
+    ]
+   },
+   "prose|non_parsing": {
+    "n": 216,
+    "n_prompts_contributing": 65,
+    "judge_accept_rate": 0.3101851851851852,
+    "ci95_prompt_cluster_conditional_on_contributing_prompts": [
+     0.19254658385093168,
+     0.4015151515151515
+    ]
+   }
+  }
+ }
+}

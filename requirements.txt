@@ -1,0 +1,7 @@
+# Python 3.10 (the parse counts were reproduced with CPython 3.10.2)
+numpy==1.24.3
+matplotlib==3.7.2
+sympy==1.13.1
+requests==2.31.0
+# optional: token-accurate judge truncation with the Qwen2.5 tokenizer
+transformers

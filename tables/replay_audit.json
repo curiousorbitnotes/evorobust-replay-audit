@@ -1,0 +1,196 @@
+{
+  "k_archived": 32,
+  "k_replay": 128,
+  "runs": {
+    "base Qwen-2.5-7B": {
+      "archived": {
+        "k": 32,
+        "n": 13472,
+        "invalid": 52,
+        "rate": 0.003859857482185273,
+        "by_source": {
+          "humaneval": 0.002858231707317073,
+          "mbpp": 0.004499027237354085
+        }
+      },
+      "replay": {
+        "k": 128,
+        "n": 53888,
+        "invalid": 216,
+        "rate": 0.004008313539192399,
+        "by_source": {
+          "humaneval": 0.0014291158536585366,
+          "mbpp": 0.005654182879377432
+        }
+      },
+      "taxonomy_rows": {
+        "unmatched closing bracket": 20,
+        "closing bracket does not match opener": 6,
+        "invalid syntax (unclassified)": 153,
+        "positional argument follows keyword": 0,
+        "other classes (incl. empty)": 37
+      },
+      "n_distinct_parser_messages": 16,
+      "n_empty_outputs": 2,
+      "judge": {
+        "n_invalid": 216,
+        "accepted_invalid": 103,
+        "accept_rate_invalid": 0.47685185185185186,
+        "n_valid": 53672,
+        "accepted_valid": 45225,
+        "accept_rate_valid": 0.8426181249068415,
+        "n_positive": 45328,
+        "frac_positives_invalid": 0.002272326156018355
+      },
+      "gate": {
+        "pass1": 0.8411520190023754,
+        "pass1_gated": 0.8392406472684085,
+        "delta": -0.001911371733966746,
+        "ci": [
+          -0.0027835510688836106,
+          -0.0011315135095011945
+        ],
+        "n_prompts": 421,
+        "k": 128,
+        "pass8": 0.9373325659434906,
+        "pass8_gated": 0.9370883570218665,
+        "pass32": 0.9609839452743816,
+        "pass32_gated": 0.9605177449028577,
+        "pass128": 0.9714964370546318,
+        "pass128_gated": 0.9714964370546318
+      }
+    },
+    "CE-trained": {
+      "archived": {
+        "k": 32,
+        "n": 13472,
+        "invalid": 57,
+        "rate": 0.004230997624703088,
+        "by_source": {
+          "humaneval": 0.0022865853658536584,
+          "mbpp": 0.005471789883268482
+        }
+      },
+      "replay": {
+        "k": 128,
+        "n": 53888,
+        "invalid": 33972,
+        "rate": 0.6304186460807601,
+        "by_source": {
+          "humaneval": 0.6481040396341463,
+          "mbpp": 0.6191330252918288
+        }
+      },
+      "taxonomy_rows": {
+        "unmatched closing bracket": 28115,
+        "closing bracket does not match opener": 5305,
+        "invalid syntax (unclassified)": 250,
+        "positional argument follows keyword": 114,
+        "other classes (incl. empty)": 188
+      },
+      "n_distinct_parser_messages": 23,
+      "n_empty_outputs": 5,
+      "judge": {
+        "n_invalid": 33972,
+        "accepted_invalid": 20152,
+        "accept_rate_invalid": 0.5931943953844342,
+        "n_valid": 19916,
+        "accepted_valid": 16194,
+        "accept_rate_valid": 0.8131150833500703,
+        "n_positive": 36346,
+        "frac_positives_invalid": 0.5544489077202444
+      },
+      "gate": {
+        "pass1": 0.6744729809976246,
+        "pass1_gated": 0.3005121733966746,
+        "delta": -0.37396080760095013,
+        "ci": [
+          -0.4096278392220903,
+          -0.34114923545130643
+        ],
+        "n_prompts": 421,
+        "k": 128,
+        "pass8": 0.8769407522653953,
+        "pass8_gated": 0.49926542098247656,
+        "pass32": 0.9269567693533043,
+        "pass32_gated": 0.5922794157487966,
+        "pass128": 0.9524940617577197,
+        "pass128_gated": 0.66270783847981
+      }
+    },
+    "SLJ-trained": {
+      "archived": {
+        "k": 32,
+        "n": 13472,
+        "invalid": 57,
+        "rate": 0.004230997624703088,
+        "by_source": {
+          "humaneval": 0.0013338414634146342,
+          "mbpp": 0.006079766536964981
+        }
+      },
+      "replay": {
+        "k": 128,
+        "n": 53888,
+        "invalid": 36051,
+        "rate": 0.6689986638954869,
+        "by_source": {
+          "humaneval": 0.6837842987804879,
+          "mbpp": 0.6595634727626459
+        }
+      },
+      "taxonomy_rows": {
+        "unmatched closing bracket": 29924,
+        "closing bracket does not match opener": 5638,
+        "invalid syntax (unclassified)": 192,
+        "positional argument follows keyword": 118,
+        "other classes (incl. empty)": 179
+      },
+      "n_distinct_parser_messages": 29,
+      "n_empty_outputs": 4,
+      "judge": {
+        "n_invalid": 36051,
+        "accepted_invalid": 21831,
+        "accept_rate_invalid": 0.6055587917117417,
+        "n_valid": 17837,
+        "accepted_valid": 14867,
+        "accept_rate_valid": 0.8334921791781129,
+        "n_positive": 36698,
+        "frac_positives_invalid": 0.5948825549076244
+      },
+      "gate": {
+        "pass1": 0.6810050475059383,
+        "pass1_gated": 0.27588702494061756,
+        "delta": -0.40511802256532065,
+        "ci": [
+          -0.4382241872030879,
+          -0.3731238865795725
+        ],
+        "n_prompts": 421,
+        "k": 128,
+        "pass8": 0.8847949030465782,
+        "pass8_gated": 0.48308753469700927,
+        "pass32": 0.9394947009117987,
+        "pass32_gated": 0.58738566939142,
+        "pass128": 0.9643705463182898,
+        "pass128_gated": 0.665083135391924
+      }
+    }
+  },
+  "llama_two_judge": {
+    "strong": {
+      "n_invalid": 1013,
+      "accepted_invalid": 587,
+      "accept_rate_invalid": 0.579466929911155,
+      "frac_positives_invalid": 0.014832596336070751
+    },
+    "weak": {
+      "n_invalid": 1013,
+      "accepted_invalid": 524,
+      "accept_rate_invalid": 0.5172754195459033,
+      "frac_positives_invalid": 0.013327568227484295
+    }
+  },
+  "tripwire_reference_rate": 0.003859857482185273,
+  "base_replay_rate": 0.004008313539192399
+}

@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A replay study of an LLM judge on code: two trained checkpoints started writing Python that does not parse, and the judge's score barely moved.">
+<meta property="og:title" content="Impossible Code, Barely Changed Score: A Replay Study of Judge-Based Evaluation">
+<meta property="og:description" content="Two-thirds of the outputs stopped being Python. The judge's score moved by under three points.">
+<meta property="og:image" content="https://curiousorbitnotes.github.io/evorobust-replay-audit/assets/fig1_replay.png?v=percentages-20261031">
+<title>Impossible Code, Barely Changed Score: A Replay Study of Judge-Based Evaluation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+/* Palette: judge = coral (the instrument that missed it), gate = violet, execution = teal,
+   broken code = amber. The hero is always dark, like a terminal; the body follows the reader's theme. */
+:root {
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --ink: #16181d;
+  --muted: #5c6370;
+  --rule: #e2dfd6;
+  --accent: #2b59c3;
+  --accent-ink: #ffffff;
+  --judge: #d8484f;
+  --gate: #7357c9;
+  --exec: #087b66;
+  --broken: #a56800;
+  --code-bg: #f0eee8;
+  --plate: #ffffff;
+  --hero-bg: #0d1117;
+  --hero-bg2: #161b2e;
+  --hero-ink: #eef1f6;
+  --hero-muted: #9aa4b5;
+  --hero-rule: #2a3142;
+  --hero-judge: #ff7a80;
+  --hero-broken: #ffb020;
+  --hero-exec: #3fd0b0;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --measure: 48rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1218; --surface: #161a22; --ink: #e8eaef; --muted: #9ea6b4; --rule: #262c38;
+    --accent: #7ea6ff; --accent-ink: #0f1218; --judge: #ff7a80; --gate: #b29cff; --exec: #3fd0b0; --broken: #ffb020;
+    --code-bg: #1b202a; --plate: #ffffff; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1218; --surface: #161a22; --ink: #e8eaef; --muted: #9ea6b4; --rule: #262c38;
+  --accent: #7ea6ff; --accent-ink: #0f1218; --judge: #ff7a80; --gate: #b29cff; --exec: #3fd0b0; --broken: #ffb020;
+  --code-bg: #1b202a; --plate: #ffffff; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.65;
+}
+.wrap { max-width: calc(var(--measure) + 2rem); margin: 0 auto; padding-inline: 1rem; }
+a { color: var(--accent); text-underline-offset: 0.15em; }
+a:focus-visible, button:focus-visible, section.panel:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.12; text-wrap: balance; margin: 0; }
+h2 { font-size: clamp(1.4rem, 3.4vw, 1.75rem); font-weight: 800; letter-spacing: -0.015em; }
+h3 { font-size: 1.12rem; font-weight: 700; }
+p { margin: 0; }
+.mono { font-family: var(--font-mono); }
+.num { font-variant-numeric: tabular-nums; }
+.eyebrow { font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); }
+
+/* ---------- hero ---------- */
+.hero {
+  background:
+    radial-gradient(60rem 28rem at 85% -10%, rgba(255, 122, 128, 0.16), transparent 60%),
+    radial-gradient(50rem 26rem at -10% 110%, rgba(63, 208, 176, 0.12), transparent 60%),
+    linear-gradient(180deg, var(--hero-bg), var(--hero-bg2));
+  color: var(--hero-ink);
+  padding-block: 3rem 3.25rem;
+  border-bottom: 1px solid var(--hero-rule);
+}
+.hero .wrap { display: grid; gap: 1.4rem; }
+.venue { overflow-wrap: anywhere; display: inline-flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--hero-muted); }
+.venue .pill { border: 1px solid var(--hero-rule); border-radius: 999px; padding: 0.2rem 0.6rem; color: var(--hero-ink); background: rgba(255,255,255,0.04); }
+.hero h1 { font-size: clamp(2.1rem, 6.4vw, 3.6rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.02; }
+.hero h1 .strike { color: var(--hero-broken); }
+.hero h1 .calm { color: var(--hero-judge); }
+.hero .sub { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.05rem, 2.4vw, 1.3rem); color: var(--hero-muted); max-width: 40rem; }
+.hero .author { color: var(--hero-muted); font-size: 1rem; }
+.hero .author strong { color: var(--hero-ink); font-weight: 600; }
+.links { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.btn {
+  display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.6rem 1.1rem;
+  border: 1px solid var(--rule); border-radius: 999px; background: var(--surface);
+  color: var(--ink); text-decoration: none; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+.btn svg { width: 1.05em; height: 1.05em; }
+.hero .btn { background: rgba(255,255,255,0.06); color: var(--hero-ink); border-color: var(--hero-rule); }
+.hero .btn.primary { background: var(--hero-ink); color: var(--hero-bg); border-color: var(--hero-ink); }
+
+/* the two meters: what happened to the code vs what happened to the score */
+.meters {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 0.4rem;
+}
+@media (max-width: 640px) { .meters { grid-template-columns: minmax(0, 1fr); } }
+.meter {
+  border: 1px solid var(--hero-rule); border-radius: 14px; padding: 1.1rem 1.15rem 1.2rem;
+  background: rgba(255,255,255,0.03); display: grid; gap: 0.75rem; min-width: 0;
+}
+.meter .label { font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--hero-muted); }
+.meter .delta { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.7rem, 4.6vw, 2.3rem); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1; }
+.meter .delta small { font-size: 0.5em; font-weight: 600; color: var(--hero-muted); letter-spacing: 0; }
+.meter.broken .delta { color: var(--hero-broken); }
+.meter.judge .delta { color: var(--hero-judge); }
+.bar-row { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr) 4.2rem; gap: 0.6rem; align-items: center; font-family: var(--font-mono); font-size: 0.78rem; color: var(--hero-muted); }
+.bar-row .v { text-align: right; color: var(--hero-ink); font-variant-numeric: tabular-nums; }
+.track { height: 0.7rem; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
+.fill { height: 100%; border-radius: 999px; width: var(--w); transform-origin: left; animation: grow 1.1s cubic-bezier(.2,.7,.2,1) both; }
+.meter.broken .fill { background: linear-gradient(90deg, #ffcf6b, var(--hero-broken)); }
+.meter.judge .fill { background: linear-gradient(90deg, #ffb0b3, var(--hero-judge)); }
+.bar-row.first .fill { opacity: 0.55; }
+@keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.hero-note { font-size: 0.88rem; color: var(--hero-muted); margin-top: -0.6rem; }
+
+.exhibit {
+  border: 1px solid var(--hero-rule); border-radius: 12px; background: #0a0d12;
+  font-family: var(--font-mono); font-size: 0.86rem; line-height: 1.6; overflow: hidden;
+}
+.exhibit .chrome { display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--hero-rule); color: var(--hero-muted); font-size: 0.72rem; }
+.exhibit .dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; background: #3a4150; }
+.exhibit pre { margin: 0; padding: 0.9rem 1rem; white-space: pre; overflow-x: auto; color: #d6dbe6; }
+.exhibit .kw { color: #c792ea; } .exhibit .fn { color: #82aaff; }
+.exhibit .bad { color: #0a0d12; background: var(--hero-broken); border-radius: 3px; padding: 0 0.1em; font-weight: 700; }
+.exhibit .err { color: var(--hero-judge); }
+.exhibit .ok { color: var(--hero-judge); font-weight: 700; }
+
+/* ---------- tabs ---------- */
+nav.tabs {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid var(--rule);
+}
+nav.tabs .wrap { display: flex; gap: 0.35rem; overflow-x: auto; padding-block: 0.55rem; }
+nav.tabs button {
+  appearance: none; border: 1px solid transparent; background: none; cursor: pointer; color: var(--muted);
+  font-family: var(--font-display); font-weight: 700; font-size: 0.95rem;
+  padding: 0.45rem 0.95rem; border-radius: 999px; white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+nav.tabs button:hover { color: var(--ink); background: var(--surface); }
+nav.tabs button[aria-selected="true"] { color: var(--accent-ink); background: var(--ink); }
+
+/* ---------- body ---------- */
+main { padding-block: 2.5rem 4.5rem; }
+section.panel { display: grid; gap: 1.4rem; }
+.block { display: grid; gap: 0.85rem; }
+.lead { font-size: 1.18rem; line-height: 1.6; }
+.muted { color: var(--muted); }
+
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.85rem; }
+@media (max-width: 600px) { .facts { grid-template-columns: minmax(0, 1fr); } }
+.fact {
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 14px;
+  padding: 1rem 1.1rem 1.05rem; display: grid; gap: 0.35rem; min-width: 0;
+  border-top: 4px solid var(--c, var(--accent));
+}
+.fact .big { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--c, var(--ink)); line-height: 1.1; }
+.fact .big .to { color: var(--muted); font-weight: 500; font-size: 0.8em; }
+.fact .what { font-size: 0.95rem; color: var(--muted); }
+.c-judge { --c: var(--judge); } .c-gate { --c: var(--gate); } .c-exec { --c: var(--exec); } .c-broken { --c: var(--broken); }
+.k-judge { color: var(--judge); } .k-gate { color: var(--gate); } .k-exec { color: var(--exec); }
+
+.proposal {
+  border-radius: 16px; padding: 1.3rem 1.3rem 1.35rem; display: grid; gap: 0.9rem;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--gate) 12%, var(--surface)), var(--surface));
+  border: 1px solid color-mix(in srgb, var(--gate) 30%, var(--rule));
+}
+.proposal .tag { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gate); font-weight: 700; }
+.split { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+
+.quote {
+  font-family: var(--font-display); font-weight: 700; font-size: clamp(1.2rem, 3vw, 1.5rem); line-height: 1.25;
+  letter-spacing: -0.01em; border-left: 4px solid var(--judge); padding: 0.2rem 0 0.2rem 1rem;
+}
+
+figure { margin: 0; display: grid; gap: 0.7rem; }
+.plate { background: var(--plate); border: 1px solid var(--rule); border-radius: 14px; padding: 0.8rem; box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
+.plate img { display: block; width: 100%; height: auto; }
+figcaption { font-size: 0.95rem; color: var(--muted); }
+
+.table-scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 14px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.94rem; }
+th, td { padding: 0.6rem 0.7rem; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+thead th { white-space: normal; vertical-align: bottom; }
+th:first-child, td:first-child { text-align: left; }
+thead th { font-family: var(--font-display); font-weight: 700; font-size: 0.88rem; border-bottom: 1px solid var(--rule); background: color-mix(in srgb, var(--ink) 3%, var(--surface)); }
+tbody tr + tr td { border-top: 1px solid var(--rule); }
+td.hot { color: var(--broken); font-weight: 700; }
+tr.base td:first-child::after { content: "control"; margin-left: 0.5rem; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--rule); border-radius: 999px; padding: 0.05rem 0.45rem; }
+.tcap { font-size: 0.92rem; color: var(--muted); }
+
+.checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.85rem; }
+@media (max-width: 640px) { .checks { grid-template-columns: minmax(0, 1fr); } }
+.check { background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; padding: 1rem 1.1rem; display: grid; gap: 0.4rem; align-content: start; min-width: 0; }
+.check h3 { font-size: 1rem; }
+.check p { font-size: 0.96rem; color: var(--muted); }
+
+ul.plain { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.45rem; }
+
+pre.code {
+  margin: 0; background: var(--code-bg); border: 1px solid var(--rule); border-radius: 12px;
+  padding: 0.95rem 1.05rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.84rem; line-height: 1.55;
+}
+pre.code .kw { color: var(--gate); font-weight: 600; } pre.code .cm { color: var(--muted); font-style: italic; }
+.files { display: grid; background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; padding: 0.3rem 1.05rem; }
+.file { display: grid; grid-template-columns: minmax(0, 16rem) minmax(0, 1fr); gap: 0.9rem; padding-block: 0.65rem; border-top: 1px solid var(--rule); }
+.file:first-child { border-top: 0; }
+.file code { font-family: var(--font-mono); font-size: 0.83rem; overflow-wrap: anywhere; color: var(--accent); }
+.file span { font-size: 0.96rem; }
+@media (max-width: 600px) { .file { grid-template-columns: minmax(0, 1fr); gap: 0.2rem; } }
+.repo-card {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; padding: 1.1rem 1.2rem;
+}
+.repo-card .name { font-family: var(--font-mono); font-weight: 700; overflow-wrap: anywhere; }
+.copyrow { display: flex; justify-content: flex-end; }
+.copyrow button { font-family: var(--font-display); font-weight: 700; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 0.45rem 1rem; cursor: pointer; }
+footer { border-top: 1px solid var(--rule); padding-block: 1.6rem; color: var(--muted); font-size: 0.9rem; }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.6rem; }
+.panel p, .check p { text-align: justify; hyphens: auto; }
+.panel .tcap, .panel .muted, .panel .quote { text-align: left; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .fill { animation: none; }
+  .btn, nav.tabs button { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="venue"><span class="pill">NeurIPS 2026 Workshop</span><span>EvoRobust &middot; Self-Evolving Diversity-Driven Search for Robust AI Systems</span></div>
+    <h1><span class="strike">Impossible Code</span>, <span class="calm">Barely Changed Score</span></h1>
+    <p class="sub">A Replay Study of Judge-Based Evaluation</p>
+    <p>We re-ran two trained AI coding models. Most of the code they now write is no longer valid Python. The AI judge that grades the code still gave almost the same score: it fell by about three percentage points.</p>
+    <div class="author"><strong>Masoud Fetanat</strong> &middot; UNSW Sydney</div>
+    <div class="links">
+      <a class="btn primary" href="assets/paper.pdf" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Paper (PDF)</a>
+      <a class="btn" href="https://github.com/curiousorbitnotes/evorobust-replay-audit" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg>Code</a>
+      <a class="btn" href="#cite" data-tab-link="cite">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 7h4v4H7zM13 7h4v4h-4z"/><path d="M7 11c0 3-1 5-3 6M13 11c0 3-1 5-3 6"/></svg>BibTeX</a>
+    </div>
+
+    <div class="meters" aria-label="SLJ-trained checkpoint, first run versus second run">
+      <div class="meter broken">
+        <div class="label">Answers that are not valid Python</div>
+        <div class="delta num">+66.5 pp <small>0.42% &rarr; 66.90%</small></div>
+        <div class="bar-row first"><span>first run</span><div class="track"><div class="fill" style="--w: 0.42%"></div></div><span class="v">0.42%</span></div>
+        <div class="bar-row"><span>second run</span><div class="track"><div class="fill" style="--w: 66.90%"></div></div><span class="v">66.90%</span></div>
+      </div>
+      <div class="meter judge">
+        <div class="label">Judge approval within 32 attempts (Pass@32)</div>
+        <div class="delta num">&minus;2.73 pp <small>96.67% &rarr; 93.95%</small></div>
+        <div class="bar-row first"><span>first run</span><div class="track"><div class="fill" style="--w: 96.67%"></div></div><span class="v">96.67%</span></div>
+        <div class="bar-row"><span>second run</span><div class="track"><div class="fill" style="--w: 93.95%"></div></div><span class="v">93.95%</span></div>
+      </div>
+    </div>
+    <p class="hero-note">Both numbers are for the model trained with the strong AI judge (SLJ), on the same 421 problems and scored by the same 72B judge in both runs. The base model stayed flat: 0.39% &rarr; 0.40% not valid.</p>
+
+    <div class="exhibit" aria-label="Example of a failing sample">
+      <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>one broken answer from the second run (SLJ-trained model)</span></div>
+<pre>    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(1, <span class="fn">len</span>(numbers))<span class="bad">)</span>:
+<span class="err">SyntaxError: unmatched ')'</span>
+<span class="ok">the judge approved 60.56% of the 36,051 invalid answers</span></pre>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Sections">
+  <div class="wrap" role="tablist" aria-label="Paper sections">
+    <button role="tab" id="tab-overview" aria-controls="panel-overview" aria-selected="true">Overview</button>
+    <button role="tab" id="tab-results" aria-controls="panel-results" aria-selected="false">Results</button>
+    <button role="tab" id="tab-code" aria-controls="panel-code" aria-selected="false">Code</button>
+    <button role="tab" id="tab-cite" aria-controls="panel-cite" aria-selected="false">Cite</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<section class="panel" id="panel-overview" tabindex="0" role="tabpanel" aria-labelledby="tab-overview">
+  <div class="block">
+    <div class="eyebrow">The problem</div>
+    <p class="lead">Training a language model with reinforcement learning needs a scorer that says whether an answer is right. For code, the dependable scorer runs the program against tests. That is slow and needs a sandbox, so many studies ask a large language model to read the code and judge it instead. This page reports what that substitution cost inside one real evaluation.</p>
+  </div>
+
+  <div class="block">
+    <div class="eyebrow">What happened</div>
+    <p>A finished study had trained <span class="mono">Qwen-2.5-7B-Instruct</span> with GRPO and saved the code its checkpoints wrote for 421 HumanEval and MBPP problems (32 samples each). Later we downloaded the released checkpoints and asked the same questions again (128 samples each), on different hardware. The base model's syntax-failure rate stayed similar. The trained checkpoints instead produced mostly invalid Python, almost always because of one extra closing bracket. The judge-based scores changed only slightly.</p>
+  </div>
+
+  <div class="block">
+    <h2>Which model does what?</h2>
+    <p>The base, CE-trained and SLJ-trained checkpoints are versions of Qwen-2.5-7B-Instruct that write code. CE-trained received rewards from execution tests, while SLJ-trained received rewards from an AI judge. The separate strong judge is Qwen-2.5-72B-Instruct, and the weaker judge is Qwen-2.5-7B-Instruct. The parser checks code syntax, while execution runs tests.</p>
+  </div>
+
+  <div class="facts">
+    <div class="fact c-broken">
+      <div class="big num">0.42% <span class="to">&rarr;</span> 66.90%</div>
+      <div class="what">of SLJ-trained answers were broken Python in the second run, up from almost none in the first. The base model's syntax-failure rate was similar (0.39% to 0.40%).</div>
+    </div>
+    <div class="fact c-judge">
+      <div class="big num">96.67% <span class="to">&rarr;</span> 93.95%</div>
+      <div class="what">Judge-based Pass@32 for SLJ-trained fell by 2.73 percentage points. This measures at least one approval within 32 attempts, rather than the fraction of individual answers that are correct.</div>
+    </div>
+    <div class="fact c-exec">
+      <div class="big num"><span class="k-judge">96.44%</span> <span class="to">vs</span> 28.27%</div>
+      <div class="what">For SLJ-trained with 128 attempts per question, the judge accepts at least one answer on 96.44% of problems, while execution tests find a passing answer on 28.27%. Both checks use the same saved answers.</div>
+    </div>
+    <div class="fact c-gate">
+      <div class="big num">0 of 70,239</div>
+      <div class="what">broken answers that still passed the tests when the code was run. A parse check is a cheap way to flag code that cannot run, without executing it.</div>
+    </div>
+  </div>
+
+  <div class="proposal">
+    <div class="tag">What the paper proposes</div>
+    <div class="split">
+      <div class="block">
+        <h2>Report the syntax-check rate beside every judge score.</h2>
+        <p>The share of outputs that parse. It needs no tests and no sandbox, and it would have flagged this change on the day it happened. Applied as a gate on the judge, it lowers judge-based Pass@1 by 0.19 percentage points on the healthy base run and by 40.51 percentage points on the damaged SLJ-trained run. Parsing does not show that code runs or is correct.</p>
+      </div>
+      <pre class="code" aria-label="The syntax gate in a few lines of Python"><span class="kw">import</span> ast
+
+<span class="cm"># extracted_code: the last code block of the response</span>
+<span class="kw">def</span> gated(judge_says_yes, extracted_code):
+    <span class="kw">if not</span> extracted_code.strip():
+        <span class="kw">return</span> False
+    <span class="kw">try</span>:
+        ast.parse(extracted_code)
+    <span class="kw">except</span> Exception:
+        <span class="kw">return</span> False
+    <span class="kw">return</span> judge_says_yes</pre>
+    </div>
+  </div>
+
+  <p class="quote">A judge's accuracy and its sensitivity to change are different properties.</p>
+  <p>A high judge-based score can sit next to a model whose outputs have stopped being programs.</p>
+
+  <div class="block">
+    <h2>Why it matters for self-evolving search</h2>
+    <p>Program-search systems such as FunSearch and AlphaEvolve score each candidate by running it through an automated evaluator. Self-rewarding training scores candidates with a model's own judgment. A judge that cannot tell broken output from working output can steer such a search toward whatever it accepts.</p>
+  </div>
+
+</section>
+
+<section class="panel" id="panel-results" tabindex="0" role="tabpanel" aria-labelledby="tab-results" hidden>
+  <div class="block">
+    <div class="eyebrow">Figure 1</div>
+    <h2>Two evaluations using the released checkpoints</h2>
+  </div>
+  <figure>
+    <div class="plate"><img src="assets/fig1_replay.png?v=percentages-20261031" width="1225" height="558" alt="Left: share of samples that do not parse, first run versus second run, for the base model and the CE- and SLJ-trained checkpoints. Right: base minus SLJ-trained Pass@k as the number of attempts grows, for code execution, the judge with a syntax gate, and the judge alone."></div>
+    <figcaption><strong>Left:</strong> the percentage of answers that fail the syntax check in each run (log scale). <strong>Right:</strong> the base-minus-SLJ-trained score gap in percentage points. At 128 attempts, the judge gap is 0.71 pp, compared with 15.91 pp for execution and 30.64 pp for judge plus syntax gate. The tables below give both trained checkpoints.</figcaption>
+  </figure>
+
+  <div class="block">
+    <h2>How much of the code is broken</h2>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>checkpoint</th><th>first run</th><th>second run</th><th>HumanEval / MBPP (second run)</th></tr></thead>
+        <tbody>
+          <tr class="base"><td>Qwen-2.5-7B base</td><td>0.39%</td><td>0.40%</td><td>0.1% / 0.6%</td></tr>
+          <tr><td>CE-trained</td><td>0.42%</td><td class="hot">63.04%</td><td>64.8% / 61.9%</td></tr>
+          <tr><td>SLJ-trained</td><td>0.42%</td><td class="hot">66.90%</td><td>68.4% / 66.0%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The base model stays clean in both runs. Both trained models go from almost never broken to about two thirds broken (63.04% and 66.90%), on HumanEval and on MBPP alike.</p>
+    <p class="tcap">Share of answers that are not valid Python (an empty answer counts as not valid). 421 problems, with 32 answers per problem in the first run and 128 in the second.</p>
+  </div>
+
+  <div class="block">
+    <h2>Four ways to score the same answers</h2>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>checkpoint</th><th>passes syntax check</th><th class="k-judge">judge Pass@128</th><th class="k-gate">judge + syntax Pass@128</th><th class="k-exec">execution Pass@128</th></tr></thead>
+        <tbody>
+          <tr class="base"><td>Qwen-2.5-7B base</td><td>99.60%</td><td>97.15%</td><td>97.15%</td><td>44.18%</td></tr>
+          <tr><td>CE-trained</td><td>36.96%</td><td>95.25%</td><td>66.27%</td><td>30.17%</td></tr>
+          <tr><td>SLJ-trained</td><td>33.10%</td><td>96.44%</td><td>66.51%</td><td>28.27%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The judge scores all three models between 95.25% and 97.15%. Adding the syntax gate lowers the trained checkpoints to about 66%. Execution gives 44.18% for the base model, 30.17% for CE-trained and 28.27% for SLJ-trained.</p>
+    <p class="tcap">The parsing column is the percentage of individual answers that pass the syntax check. The other columns are Pass@128: the estimated chance of at least one success in 128 attempts per question. Success means judge approval, approval plus passing the syntax check, or passing execution tests. MBPP function-name omissions affect the absolute execution scores.</p>
+  </div>
+
+  <div class="block">
+    <h2>The judge likes valid code but does not require it</h2>
+    <p>Take the second-run answers of the SLJ-trained model. The strong judge approved 83.35% of the answers that were valid Python. It also approved 60.56% of the answers that were not. Because about two thirds of the answers were broken, 59.49% of everything the judge approved was code that cannot run. The base model wrote only 216 broken answers. The judge approved 47.69% of them, but they make up just 0.23% of its approvals.</p>
+  </div>
+
+  <div class="block">
+    <h2>Further checks in the paper</h2>
+    <div class="checks">
+      <div class="check"><h3>Is it cut-off answers or a bug in extraction?</h3><p>Neither explains it. In the SLJ-trained model, 98.6% of the errors are an extra or mismatched closing bracket, and only one looks like an answer cut off part-way. Reading any code block instead of the last one barely changes the share of valid answers (33.10% against 33.12%).</p></div>
+      <div class="check"><h3>What if only some answers are broken?</h3><p>We added one extra bracket to 10% to 60% of the base model's answers. The share of valid answers fell from 99.5% to between 89.3% and 39.9%, yet the judge's score moved by at most 0.24 percentage points.</p></div>
+      <div class="check"><h3>Does a smaller judge do better?</h3><p>Yes, it notices more. The weak 7B judge approves less broken code (28.0% and 30.4% of it), and its score falls by about 16 percentage points between runs. Both judges come from the same model family, so this does not tell us how other judges behave.</p></div>
+      <div class="check"><h3>Is the gap real or noise?</h3><p>At 128 attempts, the base-minus-SLJ-trained judge gap is 0.71 percentage points, with a 95% interval of [&minus;1.19, 2.61] percentage points. That interval includes zero. The execution gap is 15.91 percentage points, with an interval of [12.11, 19.95] that stays above zero. These compare the models on the same later-run questions.</p></div>
+    </div>
+  </div>
+  <div class="block">
+    <h2>Scores at 1, 32 and 128 attempts</h2>
+    <p>Each question counts as successful when at least one attempt passes the chosen checker. Scores below are percentages. Gaps are base minus the indicated trained checkpoint, in percentage points (pp).</p>
+<h3>LLM judge (Qwen-2.5-72B-Instruct)</h3><div class="table-scroll"><table><thead><tr><th>Attempts k</th><th>Base (%)</th><th>CE-trained (%)</th><th>SLJ-trained (%)</th><th>Base - CE (pp)</th><th>Base - SLJ (pp)</th></tr></thead><tbody><tr><td>1</td><td>84.12%</td><td>67.45%</td><td>68.10%</td><td>16.67</td><td>16.01</td></tr><tr><td>32</td><td>96.10%</td><td>92.70%</td><td>93.95%</td><td>3.40</td><td>2.15</td></tr><tr><td>128</td><td>97.15%</td><td>95.25%</td><td>96.44%</td><td>1.90</td><td>0.71</td></tr></tbody></table></div>
+<h3>Judge + syntax gate</h3><div class="table-scroll"><table><thead><tr><th>Attempts k</th><th>Base (%)</th><th>CE-trained (%)</th><th>SLJ-trained (%)</th><th>Base - CE (pp)</th><th>Base - SLJ (pp)</th></tr></thead><tbody><tr><td>1</td><td>83.92%</td><td>30.05%</td><td>27.59%</td><td>53.87</td><td>56.34</td></tr><tr><td>32</td><td>96.05%</td><td>59.23%</td><td>58.74%</td><td>36.82</td><td>37.31</td></tr><tr><td>128</td><td>97.15%</td><td>66.27%</td><td>66.51%</td><td>30.88</td><td>30.64</td></tr></tbody></table></div>
+<h3>Execution against tests</h3><div class="table-scroll"><table><thead><tr><th>Attempts k</th><th>Base (%)</th><th>CE-trained (%)</th><th>SLJ-trained (%)</th><th>Base - CE (pp)</th><th>Base - SLJ (pp)</th></tr></thead><tbody><tr><td>1</td><td>33.74%</td><td>12.39%</td><td>11.42%</td><td>21.35</td><td>22.32</td></tr><tr><td>32</td><td>42.88%</td><td>26.32%</td><td>24.73%</td><td>16.57</td><td>18.15</td></tr><tr><td>128</td><td>44.18%</td><td>30.17%</td><td>28.27%</td><td>14.01</td><td>15.91</td></tr></tbody></table></div>
+<p class="tcap">Gaps use unrounded scores, so subtraction of displayed values can differ by 0.01 pp. These are the values in <a href="assets/paper.pdf#page=11">Table 7 of the paper</a>.</p></div>
+  <div class="block"><h2>Uncertainty in the model comparisons</h2><p>Each cell gives a gap and its 95% confidence interval, in percentage points. Positive gaps favour the base model. Both trained checkpoints are included.</p><div class="table-scroll"><table><thead><tr><th>Comparison / checker</th><th>k = 1</th><th>k = 32</th><th>k = 128</th></tr></thead><tbody><tr><td>Base - CE-trained: judge</td><td>16.7 [13.8, 19.7]</td><td>3.4 [1.4, 5.4]</td><td>1.9 [0.0, 4.0]</td></tr><tr><td>Base - CE-trained: judge + gate</td><td>53.9 [50.0, 57.7]</td><td>36.8 [32.5, 41.3]</td><td>30.9 [26.1, 35.6]</td></tr><tr><td>Base - CE-trained: execution</td><td>21.3 [17.7, 25.1]</td><td>16.6 [13.0, 20.3]</td><td>14.0 [10.2, 17.8]</td></tr><tr><td>Base - SLJ-trained: judge</td><td>16.0 [13.1, 18.9]</td><td>2.1 [0.2, 4.2]</td><td>0.7 [-1.2, 2.6]</td></tr><tr><td>Base - SLJ-trained: judge + gate</td><td>56.3 [52.6, 59.9]</td><td>37.3 [33.0, 41.8]</td><td>30.6 [25.9, 35.2]</td></tr><tr><td>Base - SLJ-trained: execution</td><td>22.3 [18.8, 26.1]</td><td>18.1 [14.6, 21.9]</td><td>15.9 [12.1, 20.0]</td></tr></tbody></table></div><p class="tcap">Paired bootstrap over the same 421 questions, matching <a href="assets/paper.pdf#page=12">Table 8 in the paper</a>.</p></div>
+<div class="block"><h2>Supporting statistics</h2><p>The paper also provides tables for <a href="assets/paper.pdf#page=15">the comparison between runs (Table 10)</a>, <a href="assets/paper.pdf#page=15">the effect of the syntax gate (Table 11)</a>, <a href="assets/paper.pdf#page=15">controlled bracket errors (Table 12)</a>, <a href="assets/paper.pdf#page=16">MBPP function-name prompts (Table 13)</a>.</p></div>
+</section>
+
+<section class="panel" id="panel-code" tabindex="0" role="tabpanel" aria-labelledby="tab-code" hidden>
+  <div class="repo-card">
+    <div class="block" style="gap:0.25rem">
+      <div class="eyebrow">Repository</div>
+      <div class="name">curiousorbitnotes/evorobust-replay-audit</div>
+    </div>
+    <a class="btn" href="https://github.com/curiousorbitnotes/evorobust-replay-audit" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg>Open on GitHub</a>
+  </div>
+  <p>The repository holds the analysis scripts, the study's extraction, execution and judge code (with the exact judge prompt), and summary results. The README distinguishes script outputs from published summary snapshots. Model checkpoints, generated samples, judge verdicts and per-sample scores are not included, so the full analyses cannot be re-run from this release alone.</p>
+
+  <div class="block">
+    <h3>Recompute the Figure 1 curves</h3>
+    <pre class="code">pip install -r requirements.txt
+python scripts/evorobust_figure.py</pre>
+    <p class="muted">This reads only the summary tables in <span class="mono">tables/</span>. It writes Figure 1 as PDF and PNG in <span class="mono">figures/</span> and refreshes the website image. Rates are percentages, and score differences are percentage points. Stored JSON probabilities remain on the 0&ndash;1 scale.</p>
+  </div>
+
+  <div class="block">
+    <h3>What each part does</h3>
+    <div class="files">
+      <div class="file"><code>scripts/evorobust_replay_audit.py</code><span>Parse rates of both passes, the error taxonomy, judge acceptance and the parse gate</span></div>
+      <div class="file"><code>scripts/evorobust_analyses.py</code><span>Paired comparisons with prompt-level bootstrap intervals and simple-signal baselines</span></div>
+      <div class="file"><code>scripts/canon4.py, canon5.py</code><span>Hardened execution harness (explicit success token, without providing a security boundary)</span></div>
+      <div class="file"><code>scripts/judge_recheck.py</code><span>Re-judges a seeded subset to check that cached verdicts belong to their samples</span></div>
+      <div class="file"><code>scripts/corrdose_*.py</code><span>The controlled syntax-error experiment</span></div>
+      <div class="file"><code>scripts/wljdam_analyze.py</code><span>The weak judge on the damaged checkpoints</span></div>
+      <div class="file"><code>rewards/llm_judge.py</code><span>Judge code and the prompt template used by both judges</span></div>
+      <div class="file"><code>tables/</code><span>Analysis outputs and published summary snapshots, with provenance in the README</span></div>
+      <div class="file"><code>data/code/eval.json</code><span>The 164 HumanEval and 257 sanitized MBPP test questions (original licenses apply)</span></div>
+    </div>
+  </div>
+
+  <div class="block">
+    <h3>Judge prompt</h3>
+    <pre class="code">You are an expert grader. Your job is to decide whether a candidate
+answer is CORRECT or INCORRECT for the given problem.
+
+Output exactly one character: '1' if the candidate answer is correct,
+or '0' if it is incorrect. Do not output anything else &mdash; no reasoning,
+no punctuation, no whitespace.
+
+PROBLEM:
+{prompt}
+
+GOLD ANSWER:
+{gold}
+
+CANDIDATE ANSWER:
+{response}
+
+YOUR VERDICT (1 or 0):</pre>
+    <p class="muted">Quoted verbatim from the code. Both judges (Qwen2.5-72B-Instruct and Qwen2.5-7B-Instruct) were served with vLLM at temperature 0.</p>
+  </div>
+</section>
+
+<section class="panel" id="panel-cite" tabindex="0" role="tabpanel" aria-labelledby="tab-cite" hidden>
+  <h2>Cite</h2>
+  <pre class="code" id="bibtex">@inproceedings{fetanat2026impossible,
+  title     = {Impossible Code, Barely Changed Score: A Replay Study of Judge-Based Evaluation},
+  author    = {Fetanat, Masoud},
+  booktitle = {NeurIPS 2026 Workshop on Self-Evolving Diversity-Driven Search for Robust AI Systems (EvoRobust)},
+  year      = {2026},
+  url       = {https://openreview.net/forum?id=MvVQZGiN8V}
+}</pre>
+  <div class="copyrow"><button type="button" id="copy-bibtex">Copy BibTeX</button></div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap"><span>Code under the MIT license. Benchmark problems keep their original licenses.</span><span>NeurIPS 2026 &middot; EvoRobust Workshop</span></div>
+</footer>
+
+<script>
+(function () {
+  var names = ["overview", "results", "code", "cite"];
+  function show(name, push) {
+    if (names.indexOf(name) < 0) name = "overview";
+    names.forEach(function (n) {
+      document.getElementById("panel-" + n).hidden = (n !== name);
+      var t = document.getElementById("tab-" + n);
+      t.setAttribute("aria-selected", n === name ? "true" : "false");
+      t.tabIndex = (n === name) ? 0 : -1;
+    });
+    if (push) { try { history.replaceState(null, "", "#" + name); } catch (e) {} }
+  }
+  names.forEach(function (n) {
+    document.getElementById("tab-" + n).addEventListener("click", function () { show(n, true); });
+  });
+  document.querySelectorAll("[data-tab-link]").forEach(function (a) {
+    a.addEventListener("click", function (ev) { ev.preventDefault(); show(a.getAttribute("data-tab-link"), true); document.querySelector("nav.tabs").scrollIntoView(); });
+  });
+  document.querySelector('[role="tablist"]').addEventListener("keydown", function (ev) {
+    var tab = ev.target.closest('[role="tab"]');
+    if (!tab) return;
+    var cur = names.indexOf(tab.id.slice(4)), next = null;
+    if (ev.key === "ArrowRight") next = names[(cur + 1) % names.length];
+    else if (ev.key === "ArrowLeft") next = names[(cur + names.length - 1) % names.length];
+    else if (ev.key === "Home") next = names[0];
+    else if (ev.key === "End") next = names[names.length - 1];
+    if (next) {
+      ev.preventDefault();
+      show(next, true); document.getElementById("tab-" + next).focus();
+    }
+  });
+  show((location.hash || "#overview").slice(1), false);
+  window.addEventListener("hashchange", function () { show((location.hash || "#overview").slice(1), false); });
+  var btn = document.getElementById("copy-bibtex");
+  btn.addEventListener("click", function () {
+    var text = document.getElementById("bibtex").textContent;
+    function done() { btn.textContent = "Copied"; setTimeout(function () { btn.textContent = "Copy BibTeX"; }, 1500); }
+    function fallback() {
+      var r = document.createRange(); r.selectNodeContents(document.getElementById("bibtex"));
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = "Selected, press Ctrl+C";
+    }
+    try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
+  });
+})();
+</script>
+</body>
+</html>

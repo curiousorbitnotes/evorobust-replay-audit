@@ -1,0 +1,53 @@
+{
+  "method": "Approximate unpaired normal interval: delta +/- 1.96 * sqrt(se_first**2 + se_second**2). First SE = sqrt(p_first*(1-p_first)/421). Second SE = sample standard deviation (ddof=1) of the 421 per-question Pass@32 estimates / sqrt(421). No cross-run covariance is used because first-run per-question verdicts are unavailable.",
+  "units": "Scores, standard errors and intervals stored on the 0-1 scale. Multiply by 100 for percentages or percentage points.",
+  "n_questions": 421,
+  "k": 32,
+  "checkpoints": {
+    "base": {
+      "first_score": 0.9596199524940617,
+      "second_score": 0.9609839452743816,
+      "delta": 0.0013639927803198448,
+      "se_first": 0.009593829577414151,
+      "se_second": 0.008794204610570908,
+      "ci95": [
+        -0.024144607220903922,
+        0.026872592781543612
+      ],
+      "first_summary": "paper1_grpo_reward_hacking/results/eval-from-hub/eval/base_qwen7b__code.json",
+      "second_judge_verdicts": "eval-results-dataset-20260905T125150Z-1-001/eval-results-dataset/base_qwen7b_code__code.slj_scores.jsonl",
+      "sha256_first_summary": "796fef07ad707def9faa1019be2fc1debedb092947b00777af9fe65362a2514b",
+      "sha256_second_judge_verdicts": "e37ffaa5fc6b2cb966c2f6ac081a3013a913254726a3e22cf2e1d9b49ee73005"
+    },
+    "CE-trained": {
+      "first_score": 0.9572446555819477,
+      "second_score": 0.9269567693533043,
+      "delta": -0.030287886228643424,
+      "se_first": 0.009859743838214875,
+      "se_second": 0.011612120307085616,
+      "ci95": [
+        -0.06014531233826118,
+        -0.0004304601190256649
+      ],
+      "first_summary": "paper1_grpo_reward_hacking/results/eval-from-hub/eval/ce_code_s1__code.json",
+      "second_judge_verdicts": "eval-results-dataset-20260905T125150Z-1-001/eval-results-dataset/ce_code_s1__code.slj_scores.jsonl",
+      "sha256_first_summary": "de275d816041f00661beb965fc2dbac16c9bd9c9e3c75e79af34d153d5bfb925",
+      "sha256_second_judge_verdicts": "dc9ab14a06975e39d5505742ebf7756929adff4bafff54ea3c885bc95db7b9ec"
+    },
+    "SLJ-trained": {
+      "first_score": 0.9667458432304038,
+      "second_score": 0.9394947009117987,
+      "delta": -0.027251142318605148,
+      "se_first": 0.008738523906499537,
+      "se_second": 0.01036173469258854,
+      "ci95": [
+        -0.053818170229627205,
+        -0.0006841144075830953
+      ],
+      "first_summary": "paper1_grpo_reward_hacking/results/eval-from-hub/eval/slj_code_s1__code.json",
+      "second_judge_verdicts": "eval-results-dataset-20260905T125150Z-1-001/eval-results-dataset/slj_code_s1__code.slj_scores.jsonl",
+      "sha256_first_summary": "e4ea83a9b3c6302e7d81ceb2432c16a4b8b589a9222c0c2453b76462e9d01a1b",
+      "sha256_second_judge_verdicts": "cf509c5b380ddb09fc783314cec01577d9beb6e070fb02bcfaa27b24a61d9432"
+    }
+  }
+}

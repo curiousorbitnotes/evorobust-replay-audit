@@ -1,0 +1,39 @@
+{
+  "scope": "Qwen-2.5-7B-Instruct base-model second-run samples only",
+  "source": "paper/tables/judge_recheck_2026-10-10.json",
+  "run_tag": "base_qwen7b_code__code",
+  "n_items": 1280,
+  "design": "80 questions per source, 8 samples per question; 164 HumanEval and 257 MBPP questions in the full bank",
+  "n_failed_requests": 0,
+  "n_invalid_verdicts": 0,
+  "n_over_server_context": 0,
+  "max_input_tokens": 1187,
+  "cached_zero_where_new_one": 1,
+  "cached_one_where_new_zero": 3,
+  "note": "Read-only subset of the original saved recheck. No new judge requests. Evidence of consistency, not proof of original request identity or trained-checkpoint pairing.",
+  "same_sample": {
+    "n_agree": 1276,
+    "n_items": 1280,
+    "agreement": 0.996875
+  },
+  "shift1": {
+    "n_agree": 1139,
+    "n_items": 1280,
+    "agreement": 0.88984375
+  },
+  "other_prompt": {
+    "n_agree": 974,
+    "n_items": 1280,
+    "agreement": 0.7609375
+  },
+  "by_source": {
+    "humaneval": {
+      "n_items": 640,
+      "n_questions": 80
+    },
+    "mbpp": {
+      "n_items": 640,
+      "n_questions": 80
+    }
+  }
+}
